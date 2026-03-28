@@ -1,0 +1,21 @@
+{
+    "PlayerList": {
+        "MaxPlayerID": 2,
+        "Test Player": {
+            "ID": 0,
+            "Running Total": 0,
+            "Games Played": 0,
+            "Average Score": 0
+        }
+    },
+    "DailyGames": {
+        "Game0": {
+            "Year": 1970,
+            "Month": 4,
+            "Day": 20,
+            "DailyScores": {
+                "Test Player": 50000
+            }
+        }
+    }
+}
