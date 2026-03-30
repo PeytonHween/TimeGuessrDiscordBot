@@ -3,21 +3,24 @@ import json
 from discord.ext import commands
 from datetime import datetime
 from copy import deepcopy
+import os
 
 scoreboard = "Scoreboard.json"
 
 # Load token from BotTokens.txt
-with open('BotTokens.txt', 'r') as f:
-    content = f.read()
-    # Extract token between < and >
-    start = content.find('<')
-    end = content.find('>')
-    if start != -1 and end != -1:
-        token = content[start+1:end]
-    else:
-        # Fallback: get second line if no < > markers
-        lines = content.strip().split('\n')
-        token = lines[1] if len(lines) > 1 else None
+# with open('BotTokens.txt', 'r') as f:
+#     content = f.read()
+#     # Extract token between < and >
+#     start = content.find('<')
+#     end = content.find('>')
+#     if start != -1 and end != -1:
+#         token = content[start+1:end]
+#     else:
+#         # Fallback: get second line if no < > markers
+#         lines = content.strip().split('\n')
+#         token = lines[1] if len(lines) > 1 else None
+
+token = os.environ.get('botToken')
 
 #############################
 
