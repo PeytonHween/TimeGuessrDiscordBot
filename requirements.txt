@@ -18,7 +18,6 @@ propcache==0.4.1
 pyparsing==3.3.2
 python-dateutil==2.9.0.post0
 six==1.17.0
-ttkthemes==3.2.2
 typing_extensions==4.15.0
 yarl==1.23.0
 os
