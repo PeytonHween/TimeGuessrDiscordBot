@@ -58,7 +58,7 @@ async def on_message(message):
     if isTimeGuessrMessage:
         print('timeguessr message detected')
 
-        gc = gspread.service_account(filename='C:/Users/pphue/Documents/Coding/DiscordBot/timeguessrdiscordbot-7ca8cf233bad.json')
+        # gc = gspread.service_account(filename='C:/Users/pphue/Documents/Coding/DiscordBot/timeguessrdiscordbot-7ca8cf233bad.json')
         sh = gc.open("Discord TimeGuessr Scoreboard")
         scoreboard = sh.sheet1
 
