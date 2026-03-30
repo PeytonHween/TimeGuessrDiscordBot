@@ -50,9 +50,13 @@ Goals
 async def on_message(message):
     print(f'Message from {message.author}: {message.content}')
 
+    if 'TESTBOT TESTBOT TESTOBOT' in message.content:
+        await message.channel.send('TimeGuessr #1033 — 15,000/50,000')
+
     # Check for TimeGuessr message
-    isTimeGuessrMessage = 'TimeGuessr' in message.content and '/50,000' in message.content.lower() and message.author != bot.user
+    isTimeGuessrMessage = 'TimeGuessr #' in message.content and '/50,000' in message.content.lower() #and message.author != bot.user
     if isTimeGuessrMessage:
+        print('timeguessr message detected')
 
         gc = gspread.service_account(filename='C:/Users/pphue/Documents/Coding/DiscordBot/timeguessrdiscordbot-7ca8cf233bad.json')
         sh = gc.open("Discord TimeGuessr Scoreboard")
@@ -69,12 +73,20 @@ async def on_message(message):
 
 def parseTimeGuessrMessage(message):
     # Example message: "TimeGuessr #1030 34,235/50,000"
+    # Example message: "TimeGuessr #1030 - 34,235/50,000"
     try:
         player = message.author.name
         parts = message.content.split()
-        num = parts[1][1:]
-        scoreParts = parts[2].split('/')[0].replace(',', '')
-        return player, num, scoreParts
+        gameNum = 0
+        score = 0
+        for p in parts:
+            if '#' in p:
+                gameNum = int(p[1:])
+            elif '/' in p:
+                score = p.split('/')[0].replace(',', '')
+
+        print('parts:  ', parts, ' ', gameNum, ' ', score)
+        return player, gameNum, score
     except Exception as e:
         print(f'Error parsing TimeGuessr message: {e}')
     return None, None
@@ -87,10 +99,14 @@ def updateScoreboard(player, puzzleNumber, score, scoreboard):
     print(playerList)
     if player not in playerList[0]:
         print('player not here yet  ', player)
-        testPlayer = scoreboard.find("Test Player")
+        topRow = scoreboard.row_values(1)
+        newestPlayer = topRow[-1]
+        print('newestplayer: ', newestPlayer)
+        newestPlayerCol = scoreboard.find(newestPlayer).col
+        print('newestPlayerCol: ', newestPlayerCol)
         playerTemplate = scoreboard.get('E2:E4')
-        playerCol = testPlayer.col+1
-        scoreboard.update_cell(testPlayer.row, playerCol, player)
+        playerCol = newestPlayerCol+1
+        scoreboard.update_cell(1, playerCol, player)
         for row in range(2,5):
             scoreboard.update_cell(row, playerCol, playerTemplate[row-2][0])
     else:
@@ -117,10 +133,12 @@ def updateScoreboard(player, puzzleNumber, score, scoreboard):
     # Update player's info
     gamesPlayed = scoreboard.cell(2,playerCol).value
     runningTot = scoreboard.cell(3,playerCol).value
+    print('runningTot: ', runningTot)
+    print(' new runningTot: ', int(runningTot[0])+int(score))
     avgScore = round((int(runningTot)+int(score))/(int(gamesPlayed)+1))
     print('gameplayed, running tot, avg', gamesPlayed, '  ', runningTot, '   ', avgScore)
-    scoreboard.update_cell(2,playerCol, int(gamesPlayed[0])+1)
-    scoreboard.update_cell(3,playerCol, int(runningTot[0])+int(score))
+    scoreboard.update_cell(2,playerCol, int(gamesPlayed)+1)
+    scoreboard.update_cell(3,playerCol, int(runningTot)+int(score))
     scoreboard.update_cell(4,playerCol, avgScore)
 
     return playerCol, gameRow
@@ -134,10 +152,10 @@ def populateTodaysGame(gameRow, scoreboard):
 def createDailyGame(gameString, gamesCol, scoreboard):
     # Add new game to scoreboard
     lastGame = gamesCol[-1]
-    print('last game ', lastGame)
+    # print('last game ', lastGame)
     gameRow = scoreboard.find(lastGame).row 
     scoreboard.update_cell(gameRow+1, 1, gameString)
-    print('updated row ', gameRow+1, ' with teh latest game')
+    # print('updated row ', gameRow+1, ' with teh latest game')
     return gameRow+1
 
 def retrieveFromScoreboard(puzzleNumber, scoreboard, playerCol, gameRow):
@@ -147,21 +165,21 @@ def retrieveFromScoreboard(puzzleNumber, scoreboard, playerCol, gameRow):
     infoRanked = []
 
     # [playerName, score]
-    print('playerlist: ' , playerList)
-    print(len(playerList[0]))
+    # print('playerlist: ' , playerList)
+    # print(len(playerList[0]))
     for col in range(1,len(playerList[0])+1):
         readCol = col+4
-        print('col  ', col, '   ', readCol)
+        # print('col  ', col, '   ', readCol)
         playerLine = []
         pName = scoreboard.cell(1,readCol).value
         pScore = scoreboard.cell(gameRow,readCol).value
         playerLine.append(pName)
         playerLine.append(pScore)
-        print(playerLine)
+        # print(playerLine)
         if pScore != None and int(pScore) > 0:
             infoRanked = insertPlayerByRank(playerLine, infoRanked) 
 
-    print(infoRanked)
+    # print(infoRanked)
     return infoRanked
 
 def insertPlayerByRank(playerLine, infoRanked):
